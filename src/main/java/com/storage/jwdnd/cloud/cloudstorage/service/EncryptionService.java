@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import javax.crypto.*;
 import javax.crypto.spec.SecretKeySpec;
 import java.io.UnsupportedEncodingException;
+import java.math.BigInteger;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Base64;
@@ -33,17 +34,16 @@ public class EncryptionService {
 
     public String decryptValue(String data, String key) {
         byte[] decryptedValue = null;
-
         try {
             Cipher cipher = Cipher.getInstance("AES/ECB/PKCS5Padding");
             SecretKey secretKey = new SecretKeySpec(key.getBytes(), "AES");
+            System.out.println(secretKey);
             cipher.init(Cipher.DECRYPT_MODE, secretKey);
             decryptedValue = cipher.doFinal(Base64.getDecoder().decode(data));
         } catch (NoSuchAlgorithmException | NoSuchPaddingException
                 | InvalidKeyException | IllegalBlockSizeException | BadPaddingException e) {
             logger.error(e.getMessage());
         }
-
         return new String(decryptedValue);
     }
 }

@@ -1,20 +1,24 @@
 package com.storage.jwdnd.cloud.cloudstorage.controller;
 
+import com.storage.jwdnd.cloud.cloudstorage.model.Credential;
 import com.storage.jwdnd.cloud.cloudstorage.model.File;
 import com.storage.jwdnd.cloud.cloudstorage.model.Note;
 import com.storage.jwdnd.cloud.cloudstorage.model.User;
-import com.storage.jwdnd.cloud.cloudstorage.service.FileService;
-import com.storage.jwdnd.cloud.cloudstorage.service.NoteService;
-import com.storage.jwdnd.cloud.cloudstorage.service.UserService;
+import com.storage.jwdnd.cloud.cloudstorage.service.*;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.crypto.KeyGenerator;
+import javax.crypto.SecretKey;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.math.BigInteger;
+import java.security.SecureRandom;
+import java.util.Base64;
 
 @Controller
 @RequestMapping("/home")
@@ -23,11 +27,19 @@ public class HomeController {
     private UserService mUserService;
     private FileService mFileService;
     private NoteService mNoteService;
+    private CredentialService mCredentialService;
+    private EncryptionService mEncryptionService;
 
-    public HomeController(UserService userService, FileService fileService, NoteService noteService) {
+    public HomeController(UserService userService,
+                          FileService fileService,
+                          NoteService noteService,
+                          CredentialService credentialService,
+                          EncryptionService encryptionService) {
         mUserService = userService;
         mFileService = fileService;
         mNoteService = noteService;
+        mCredentialService = credentialService;
+        mEncryptionService = encryptionService;
     }
 
     @GetMapping
@@ -35,6 +47,8 @@ public class HomeController {
         User currentUser = mUserService.getUser(auth.getName());
         model.addAttribute("files", mFileService.getFiles(currentUser.getUserId()));
         model.addAttribute("notes", mNoteService.getNotes(currentUser.getUserId()));
+        model.addAttribute("encryptionService", mEncryptionService);
+        model.addAttribute("credentials", mCredentialService.getCredentials(currentUser.getUserId()));
         return "home";
     }
 
@@ -111,6 +125,43 @@ public class HomeController {
     @DeleteMapping(params = "note_delete")
     public String deleteNote(@RequestParam("noteId") String noteId) {
         mNoteService.deleteNote(Integer.parseInt(noteId));
+        return "redirect:/home";
+    }
+
+    @PostMapping(params = "add_credential")
+    public String addCredential(@ModelAttribute Credential credential,
+                                @RequestParam("credentialId") String credentialId,
+                                Model model,
+                                Authentication auth) {
+        System.out.println("キー");
+        System.out.println(credential.getKey());
+        int rowAdded = 0;
+        User currentUser = mUserService.getUser(auth.getName());
+        SecureRandom random = new SecureRandom();
+        byte[] key = new byte[16];
+        random.nextBytes(key);
+        String encodedKey = Base64.getEncoder().encodeToString(key);
+        String encryptedPassword = mEncryptionService.encryptValue(credential.getPassword(), encodedKey);
+        credential.setKey(encodedKey);
+        credential.setPassword(encryptedPassword);
+        if (credentialId.equals("")) {
+            credential.setUserId(currentUser.getUserId());
+            rowAdded = mCredentialService.insertCredential(credential);
+        } else {
+            rowAdded = mCredentialService.updateCredential(credential);
+        }
+
+        if (rowAdded > 0) {
+            model.addAttribute("success", true);
+        } else {
+            model.addAttribute("success", false);
+        }
+        return "result";
+    }
+
+    @DeleteMapping(params = "credential_delete")
+    public String deleteCredential(@RequestParam("credentialId") String credentialId) {
+        mCredentialService.deleteCredential(Integer.parseInt(credentialId));
         return "redirect:/home";
     }
 }
