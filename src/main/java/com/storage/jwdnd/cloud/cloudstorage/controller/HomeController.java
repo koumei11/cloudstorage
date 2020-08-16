@@ -80,7 +80,7 @@ public class HomeController {
     }
 
     @PostMapping(params = "file_download")
-    public void downloadFile(@RequestParam("fileId") String fileId, HttpServletResponse response, Model model) {
+    public void downloadFile(@RequestParam("fileId") String fileId, HttpServletResponse response) {
         try {
             File file = mFileService.getFile(Integer.parseInt(fileId));
             response.setContentType(file.getContentType());
@@ -94,7 +94,7 @@ public class HomeController {
         }
     }
 
-    @DeleteMapping(params = "file_delete")
+    @DeleteMapping("/delete/file")
     public String deleteFile(@RequestParam("fileId") String fileId){
         mFileService.delete(Integer.parseInt(fileId));
         return "redirect:/home";
@@ -122,7 +122,7 @@ public class HomeController {
         return "result";
     }
 
-    @DeleteMapping(params = "note_delete")
+    @DeleteMapping("/delete/note")
     public String deleteNote(@RequestParam("noteId") String noteId) {
         mNoteService.deleteNote(Integer.parseInt(noteId));
         return "redirect:/home";
@@ -159,7 +159,7 @@ public class HomeController {
         return "result";
     }
 
-    @DeleteMapping(params = "credential_delete")
+    @DeleteMapping("/delete/credential")
     public String deleteCredential(@RequestParam("credentialId") String credentialId) {
         mCredentialService.deleteCredential(Integer.parseInt(credentialId));
         return "redirect:/home";

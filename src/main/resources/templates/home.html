@@ -56,9 +56,9 @@
                                             <input type="hidden" name="fileId" th:value="*{fileId}">
                                             <button target="_blank" type="submit" class="btn btn-success" name="file_download">View</button>
                                         </form>
-                                        <form action="#" th:method="DELETE" th:action="@{/home}" style="margin-left: 2px;">
+                                        <form action="#" th:method="DELETE" th:action="@{/home/delete/file}" style="margin-left: 2px;">
                                             <input type="hidden" name="fileId" th:value="*{fileId}">
-                                            <button type="submit" class="btn btn-danger" name="file_delete">Delete</button>
+                                            <button type="submit" class="btn btn-danger">Delete</button>
                                         </form>
                                         </div>
                                     </td>
@@ -87,9 +87,9 @@
                                         <td>
                                             <div style="display: flex; justify-content: start;">
                                                 <button type="button" class="btn btn-success" th:onclick="showNoteModal([[*{noteId}]], [[*{noteTitle}]], [[*{noteDescription}]])" style="margin-right: 2px;">Edit</button>
-                                                <form action="#" th:method="DELETE" th:action="@{/home}" style="margin-left: 2px;">
+                                                <form action="#" th:method="DELETE" th:action="@{/home/delete/note}" style="margin-left: 2px;">
                                                     <input type="hidden" name="noteId" th:value="*{noteId}">
-                                                    <button type="submit" class="btn btn-danger" name="note_delete">Delete</button>
+                                                    <button type="submit" class="btn btn-danger">Delete</button>
                                                 </form>
                                             </div>
                                         </td>
@@ -153,9 +153,9 @@
                                             <td>
                                                 <div style="display: flex; justify-content: start;">
                                                     <button type="button" class="btn btn-success" th:onclick="showCredentialModal([[*{credentialId}]], [[*{url}]], [[*{username}]], [[${encryptionService.decryptValue(credential.getPassword(), credential.getKey())}]])" style="margin-right: 2px;">Edit</button>
-                                                    <form action="#" th:method="DELETE" th:action="@{/home}" style="margin-left: 2px;">
+                                                    <form action="#" th:method="DELETE" th:action="@{/home/delete/credential}" style="margin-left: 2px;">
                                                         <input type="hidden" name="credentialId" th:value="*{credentialId}">
-                                                        <button type="submit" class="btn btn-danger" name="credential_delete">Delete</button>
+                                                        <button type="submit" class="btn btn-danger">Delete</button>
                                                     </form>
                                                 </div>
                                             </td>
